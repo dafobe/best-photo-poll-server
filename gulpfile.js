@@ -1,48 +1,52 @@
-var gulp = require('gulp');
-var cp = require('child_process');
-var del = require('del');
-var webpack = require('webpack-stream');
-var webpackConfig = require('./webpack.config.js');
-var nodemon = require('gulp-nodemon');
+var gulp = require('gulp'),
+    del = require('del'),
+    nodemon = require('gulp-nodemon'), //Restart Node on changes
+    mocha = require('gulp-mocha'), //testing
+    babel = require("gulp-babel"), //transpile
+    Cache = require('gulp-file-cache');
 
+var cache = new Cache();
 
 /**
- * Build (Webpack)
+ * Build Tasks
  */
-
 gulp.task('clean:build', function() {
-    del('./public/js/*')
+//  del('./dist/*')
 });
 
-gulp.task('build', ['clean:build'], function() {
-  return gulp.src('./src/app.js')
-    .pipe(webpack(webpackConfig))
-    .on('error', function handleError() {
-      this.emit('end'); // Recover from errors
-    })
-    .pipe(gulp.dest('./'));
-});
-
-gulp.task('watch:build', function() {
-  return gulp.watch('./src/**/*', ['build']);
+gulp.task('build', function(){
+  return gulp.src('./src/**/*.js') //ES2015 code
+              .pipe(cache.filter()) // remember files
+              .pipe(babel()) // transpile
+              .pipe(cache.cache()) // cache them
+              .pipe(gulp.dest('./dist')) //copy in distribution folder
 });
 
 /**
- * Websocket Server
+ * Server tasks
  */
-
 gulp.task('serve:node', function(done) {
   nodemon({
-    exec: './node_modules/.bin/babel-node ./server.js',
-    watch: ['server.js'],
-    ext: 'js html'
+    script: 'dist/app.js', // run ES5 code
+    watch: './src', // watch ES2015 code
+    tasks: ['build'] // compile synchronously onChange
   });
+});
+
+/**
+ * Testing tasks 
+ */
+gulp.task('test', function(){
+  return gulp.src('./test/*.js', {read: false})
+              .pipe(mocha());
+});
+
+gulp.task('test:watch', function(){
+  return gulp.watch('./src/**/*', ['test']);
 });
 
 /**
  * Main tasks
  */
-
-gulp.task('serve', ['serve:node']);
-gulp.task('watch', ['build', 'watch:build']);
+gulp.task('start', ['serve:node']);
 gulp.task('default', ['serve']);

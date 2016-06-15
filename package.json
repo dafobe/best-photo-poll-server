@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "main": "main.js",
   "scripts": {
-    "start": "gulp"
+    "start": "gulp start",
+    "test": "gulp test"
   },
   "author": "David Fonollosa",
   "license": "ISC",
@@ -20,11 +21,11 @@
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-nodemon": "^2.0.6",
-    "webpack": "^1.12.14",
-    "webpack-stream": "^3.1.0",
+    "gulp-file-cache": "^0.0.1",
+    "gulp-mocha": "^2.2.0",
+    "gulp-babel" : "^6.1.2",
     "chai": "3.5.0",
-    "chai-immutable": "1.5.3",
-    "mocha": "2.4.5"
+    "chai-immutable": "1.5.3"
   },
   "babel": {
     "presets": [
